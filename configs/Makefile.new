@@ -1,0 +1,130 @@
+ goal: makefile.dep
+	# make partial_waves_sp.x
+	# make partial_waves_c3.x
+	# make amplitudes.x
+	# make amplitudes_eva.x
+	# make eikonal_integrals.x
+	# make eikonal_integrals_2index.x
+	# make h2p_recollide_3d.x
+	make partition-in-small-box.x
+
+MAKEFLAGS = -r
+
+.SUFFIXES: .f90 .o .x .c .dep
+
+#
+# Default settings
+#
+EXTNAMES = -Ddriver=driver_ -DdrvGridHead=drvgridhead_ -DdrvGridData=drvgriddata_ \
+           -DdrvGridShow=drvgridshow_
+#
+# System-specific overrides
+#
+include configs/numerov-64opt.mak
+# include configs/volk-64opt.mak
+# include configs/volk-64dbg.mak
+
+#
+# Finish the set-up
+#
+LIBS = $(LAPACK) $(FFTW3) $(DXLIB)
+
+#
+# Compiling and archiving rules
+#
+.f90.o:
+	$(F90) -c $<
+
+.c.o:
+	$(CC) -c $<
+
+clean:
+	-/bin/rm -f *.{o,mod,x,il,a} checkpoint_{field,main}.* makefile.dep
+
+makefile.dep: $(shell echo *.f90)
+	./make-depend.sh $^ > $@
+
+#
+# Interactive or batch online interface
+#
+#driver.o:	onlinedriver.c
+#	$(CC) $(CFLAGS) $(DXINC) $(EXTNAMES) -c onlinedriver.c -o driver.o
+
+driver.o:	exportdriver.c
+	$(CC) $(CFLAGS) $(DXINC) $(EXTNAMES) -c exportdriver.c -o driver.o
+
+#
+# Explicit dependencies
+#
+
+LIBMULTIGRID += accuracy.o
+LIBMULTIGRID += caps.o
+LIBMULTIGRID += complex.o
+LIBMULTIGRID += dft.o
+LIBMULTIGRID += eikonal_tools.o
+LIBMULTIGRID += eikonal_tools_eva.o
+LIBMULTIGRID += fftw.o
+LIBMULTIGRID += fields.o
+LIBMULTIGRID += fock.o
+LIBMULTIGRID += import_gamess.o
+LIBMULTIGRID += interpolate.o
+LIBMULTIGRID += kinetic.o
+LIBMULTIGRID += lanczos_complex.o
+LIBMULTIGRID += lanczos.o
+LIBMULTIGRID += lapack.o
+LIBMULTIGRID += lebedev.o
+LIBMULTIGRID += liu.o
+LIBMULTIGRID += math.o
+LIBMULTIGRID += multigrid.o
+LIBMULTIGRID += parallel.o
+LIBMULTIGRID += phase_interpolation.o
+LIBMULTIGRID += phase_interpolation_eva.o
+LIBMULTIGRID += pulse.o
+LIBMULTIGRID += qmech.o
+LIBMULTIGRID += symmetry.o
+LIBMULTIGRID += timer.o
+LIBMULTIGRID += vandalyse.o
+
+LIBPARTITION += accuracy.o
+LIBPARTITION += h2_thermo.o
+LIBPARTITION += h2_potential.o
+LIBPARTITION += fftw.o
+LIBPARTITION += lapack.o
+LIBPARTITION += math.o
+LIBPARTITION += convolution.o
+LIBPARTITION += sparse.o
+LIBPARTITION += timer.o
+LIBPARTITION += vector.o
+
+#
+# Building the binaries
+#
+h2p_recollide_3d.x: h2p_recollide_3d.o driver.o $(LIBMULTIGRID)
+	$(F90) -o h2p_recollide_3d.x driver.o h2p_recollide_3d.o $(LIBMULTIGRID) $(LIBS)
+
+partial_waves_sp.x: partial_waves_sp.o driver.o $(LIBMULTIGRID)
+	$(F90) -o partial_waves_sp.x driver.o partial_waves_sp.o $(LIBMULTIGRID) $(LIBS)
+
+partial_waves_c3.x: partial_waves_c3.o driver.o $(LIBMULTIGRID)
+	$(F90) -o partial_waves_c3.x driver.o partial_waves_c3.o $(LIBMULTIGRID) $(LIBS)
+
+eikonal_integrals.x: eikonal_integrals.o driver.o $(LIBMULTIGRID)
+	$(F90) -o eikonal_integrals.x driver.o eikonal_integrals.o $(LIBMULTIGRID) $(LIBS)
+
+eikonal_integrals_2index.x: eikonal_integrals_2index.o driver.o $(LIBMULTIGRID)
+	$(F90) -o eikonal_integrals_2index.x driver.o eikonal_integrals_2index.o $(LIBMULTIGRID) $(LIBS)
+
+amplitudes.x: amplitudes.o driver.o $(LIBMULTIGRID)
+	$(F90) -o amplitudes.x driver.o amplitudes.o $(LIBMULTIGRID) $(LIBS)
+
+amplitudes_eva.x: amplitudes_eva.o driver.o $(LIBMULTIGRID)
+	$(F90) -o amplitudes_eva.x driver.o amplitudes_eva.o $(LIBMULTIGRID) $(LIBS)
+
+partition-in-small-box.x: partition.o $(LIBPARTITION) 
+	$(F90) -o partition-in-small-box.x partition.o $(LIBPARTITION) $(LIBS)
+
+#
+# Automatically-generated dependencies
+#
+include makefile.dep
+
