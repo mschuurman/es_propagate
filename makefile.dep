@@ -1,0 +1,36 @@
+absorb_propagate.bs.o: absorb_propagate.bs.f90 accuracy.o cache_grx.o elements.o fc_tools.o lapack.o math.o pulse.o timer.o 
+
+absorb_propagate.lf.o: absorb_propagate.lf.f90 accuracy.o cache_grx.o elements.o fc_tools.o lapack.o math.o pulse.o timer.o 
+
+absorb_propagate.rk.o: absorb_propagate.rk.f90 accuracy.o cache_grx.o elements.o fc_tools.o lapack.o math.o pulse.o timer.o 
+
+accuracy.o: accuracy.f90 
+
+cache_fc.o: cache_fc.f90 accuracy.o timer.o 
+
+cache_gr.o: cache_gr.f90 accuracy.o timer.o 
+
+cache_grx.o: cache_grx.f90 accuracy.o timer.o 
+
+cache_grx.old.o: cache_grx.old.f90 accuracy.o timer.o 
+
+dgedi__genmod.o: dgedi__genmod.f90 
+
+dgefa__genmod.o: dgefa__genmod.f90 
+
+elements.o: elements.f90 accuracy.o 
+
+fc_tools.o: fc_tools.f90 accuracy.o elements.o lapack.o math.o timer.o 
+
+franck_condon.o: franck_condon.f90 accuracy.o cache_fc.o elements.o fc_tools.o lapack.o math.o timer.o 
+
+lapack.o: lapack.f90 accuracy.o 
+
+math.o: math.f90 accuracy.o 
+
+pe_spectrum.o: pe_spectrum.f90 accuracy.o timer.o 
+
+pulse.o: pulse.f90 accuracy.o 
+
+timer.o: timer.f90 accuracy.o 
+
