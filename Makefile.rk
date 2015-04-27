@@ -1,0 +1,71 @@
+ goal: makefile.dep
+	make absorb_propagate.rk.x
+
+MAKEFLAGS = -r
+
+.SUFFIXES: .f90 .o .x .c .dep
+
+#
+# System-specific overrides
+#
+
+  include configs/numerov-intel.mak
+#  include configs/volk-64opt.mak
+# include configs/volk-64dbg.mak
+# include configs/volk-64ifort12.1dbg.mak
+# include configs/volk-64ifort12.1opt.mak
+
+#
+# Finish the set-up
+#
+LIBS = $(LAPACK) $(FFTW3) $(DXLIB)
+
+#
+# Compiling and archiving rules
+#
+.f90.o:
+	$(F90) -c $<
+
+dgefa.o:	dgefa.f
+	$(F90) -c dgefa.f
+
+dgedi.o:	dgedi.f
+	$(F90) -c dgedi.f
+
+.c.o:
+	$(CC) -c $<
+
+clean:
+	-/bin/rm -f *.{o,mod,x,il,a} checkpoint_{field,main}.* makefile.dep
+
+makefile.dep: $(shell echo *.f90)
+	./make-depend.sh $^ > $@
+
+#
+# Explicit dependencies
+#
+
+LIBFC += accuracy.o
+LIBFC += cache_fc.o
+LIBFC += cache_gr.o
+LIBFC += cache_grx.o
+LIBFC += pulse.o
+LIBFC += dgedi.o
+LIBFC += dgefa.o
+LIBFC += elements.o
+LIBFC += fc_tools.o
+LIBFC += lapack.o
+LIBFC += math.o
+LIBFC += timer.o
+
+#
+# Building the binaries
+#
+absorb_propagate.rk.x: absorb_propagate.rk.o $(LIBFC)
+	$(F90) -o absorb_propagate.rk.x absorb_propagate.rk.o $(LIBFC) $(LIBS)
+
+#
+# Automatically-generated dependencies
+#
+include makefile.dep
+
