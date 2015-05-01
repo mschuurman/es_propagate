@@ -1603,12 +1603,16 @@
       !  Load geometry and Hessian for each surface, and perform normal mode
       !  analysis for each of the surfaces.
       !
-      write (out,"(/'Intializing neutral (unperturbed) surface'/)")
+      write (out,"(/'Intializing initial/unperturbed surface'/)")
       call initialize_surface(surf=gs,xyz_name=xyz,hess_name=gs_hessian, &
               verbose=verbose,freq_cut=freq_cut,freq_dummy=freq_dummy,evib_max=1._rk,nvib_max=1_sik)
-      write (out,"(/'Intializing cationic (perturbed) surface'/)")
+
+      ! set freq_cut to zero -- we need those imaginary frequencies in there.
+      ! Since geometry is identical, rotations/translations should be ignored
+      ! via sensible mode coupling cutoffs (g_max/h_max)
+      write (out,"(/'Intializing excited/perturbed surface'/)")
       call initialize_surface(surf=es,xyz_name=xyz,hess_name=es_hessian, &
-              verbose=verbose,freq_cut=freq_cut,freq_dummy=freq_dummy,evib_max=1._rk,nvib_max=1_sik)
+              verbose=verbose,freq_cut=-5000._rk,freq_dummy=freq_dummy,evib_max=1._rk,nvib_max=1_sik)
       !
       !  A bit of sanity checking - the surfaces must be compatible
       !
